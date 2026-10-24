@@ -1,5 +1,4 @@
 #include "max7219.h"
-#include <time.h>
 
 /*-------------------HAL LEVEL-----------------*/
 /**
@@ -13,8 +12,9 @@ max7219_state_t MAX7219_SPI_TX(uint8_t data) {
     SPDR = data;
     while (!(SPSR & (1 << SPIF))) {
         // emergency exit
-        if (cnt++ > MAX7219_SPI_TIMEOUT)
+        if (cnt++ > MAX7219_SPI_TIMEOUT){
             return MAX7219_TO;
+        }
     };
     return MAX7219_OK;
 }
@@ -27,7 +27,7 @@ max7219_state_t MAX7219_SPI_TX(uint8_t data) {
  * MAX7219_TO -> spi timeout\
  * MAX7219_EP -> empty pointer
  */
-max7219_state_t MAX7219_SPI_TX_Buf(uint8_t *data_buf, uint8_t size) {
+max7219_state_t MAX7219_SPI_TX_Buf(const uint8_t *data_buf, uint8_t size) {
     MAX7219_MACR_CHECK_PTR(data_buf, return MAX7219_EP);
     uint32_t cnt;
     for (uint8_t i = size; i > 0; i++) {
@@ -35,8 +35,9 @@ max7219_state_t MAX7219_SPI_TX_Buf(uint8_t *data_buf, uint8_t size) {
         SPDR = *data_buf;
         while (!(SPSR & (1 << SPIF))) {
             // emergency exit
-            if (cnt++ > MAX7219_SPI_TIMEOUT)
+            if (cnt++ > MAX7219_SPI_TIMEOUT){
                 return MAX7219_TO;
+            }
         };
     }
     return MAX7219_OK;
@@ -81,8 +82,9 @@ void MAX7219_WriteReg(uint8_t reg, uint8_t data, max7219_t *struc) {
  */
 void MAX7219_SetIntensity(uint8_t intensity, max7219_t *struc) {
     MAX7219_MACR_CHECK_PTR(struc, return);
-    if (intensity > 8)
+    if (intensity > 8) {
         intensity = 8;
+    }
     MAX7219_WriteReg(MAX7219_REG_INTENSITY, intensity, struc);
 }
 
@@ -145,7 +147,7 @@ void MAX7219_Clear(max7219_t *struc) {
 }
 
 uint8_t MAX7219_GetErr(max7219_t *struc) {
-    if (struc == NULL) {
+    if (struc == 0) {
         return 1 << MAX7219_ERR_EMPTY_PTR;
     }
     return struc->err;
